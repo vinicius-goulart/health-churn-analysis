@@ -137,7 +137,7 @@ Based on the analysis:
 
 **Vinícius Goulart Nardelli**  
 Data Analyst · São Paulo, BR  
-[LinkedIn](https://linkedin.com/in/vinicius-goulart) · [GitHub](https://github.com/vinicius-goulart)
+[LinkedIn](https://www.linkedin.com/in/vinicius-goulart-nardelli/) · [GitHub](https://github.com/vinicius-goulart)
 
 ---
 
