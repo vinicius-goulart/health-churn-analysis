@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Local planning / progress tracking (not for the repo)
+PLAN.md
+SESSION_SUMMARY.md

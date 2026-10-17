@@ -34,12 +34,12 @@ health-churn-analysis/
 │
 ├── notebooks/
 │   ├── 01_eda.ipynb           ← Distributions, null analysis, churn by segment
-│   ├── 02_viz.ipynb           ← Seaborn + Plotly charts, visual storytelling
-│   └── 03_model.ipynb         ← Logistic Regression + Random Forest, AUC-ROC, SHAP
+│   ├── 02_viz.ipynb           ← Interactive Plotly storytelling for stakeholders
+│   └── 03_model.ipynb         ← Logistic Regression + Random Forest, ROC-AUC, SHAP
 │
 └── sql/
-    ├── 01_churn_rate_by_cohort.sql   ← Monthly cohort retention table
-    ├── 02_retention_by_plan_type.sql ← Churn rate by contract type
+    ├── 01_churn_rate_by_cohort.sql   ← Churn rate by tenure cohort
+    ├── 02_retention_by_plan_type.sql ← Churn / retention rate by contract type
     └── 03_high_risk_segments.sql     ← Window functions to rank at-risk segments
 ```
 
@@ -47,14 +47,15 @@ health-churn-analysis/
 
 ## 🔑 Key Findings
 
-> *(Charts will be embedded here after notebooks are complete)*
+> *Interactive charts live in `notebooks/02_viz.ipynb` ([view on nbviewer](https://nbviewer.org/github/vinicius-goulart/health-churn-analysis/blob/master/notebooks/02_viz.ipynb) — GitHub doesn't render Plotly); model diagnostics (ROC, SHAP) in `notebooks/03_model.ipynb`.*
 
 | Finding | Detail |
 |---|---|
-| **Monthly plans churn 3× more** than annual contracts | Switching users to semi-annual locks in retention |
-| **First 90 days are critical** | 42% of churn happens within the first quarter — onboarding matters most |
-| **High-engagement users almost never churn** | Users with 3+ service touchpoints/month have <5% churn rate |
-| **Model AUC-ROC** | `TBD after notebook 03` |
+| **Contract type is the #1 driver** | Month-to-month churns **42.7%** vs **2.8%** for two-year contracts — a ~15× gap. The single highest-leverage retention lever. |
+| **The first 6 months are critical** | ~**42% of all churn** happens within the first 6 months; subscribers in their first 3 months churn at **56%**. Onboarding is decisive. |
+| **Missing protection add-ons flag risk** | Subscribers without `OnlineSecurity` / `TechSupport` / etc. churn at ~**40%** vs ~**15–22%** for those who have them. |
+| **Highest-risk segment** | Month-to-month + electronic check + fiber optic = **60.4% churn** (1,307 subscribers) — the "less-committed" profile. |
+| **Model ROC-AUC** | **0.833** (Logistic Regression) vs 0.500 baseline, catching **78%** of churners (recall) at the default 0.5 threshold. |
 
 ---
 
@@ -76,20 +77,20 @@ uv sync
 ### 3. Run notebooks in order
 
 ```bash
-jupyter notebook
+uv run jupyter notebook
 ```
 
 Open and run: `01_eda.ipynb` → `02_viz.ipynb` → `03_model.ipynb`
 
 ### 4. SQL queries
 
-Queries in `sql/` are written for PostgreSQL. To run against the dataset locally:
+Queries in `sql/` are PostgreSQL-style and run as-is on DuckDB (installed by `uv sync`). To run one against the CSV:
 
 ```bash
-# Load data into a local PostgreSQL instance or use DuckDB
-duckdb -c "CREATE TABLE subscribers AS SELECT * FROM 'data/subscribers.csv';"
-duckdb -c ".read sql/01_churn_rate_by_cohort.sql"
+uv run python -c "import duckdb; duckdb.sql(\"CREATE TABLE subscribers AS FROM 'data/subscribers.csv'\"); duckdb.sql(open('sql/01_churn_rate_by_cohort.sql').read()).show()"
 ```
+
+> On PostgreSQL, load the CSV with lowercase column names — unquoted identifiers like `Contract` are folded to `contract`.
 
 ---
 
@@ -104,7 +105,7 @@ The dataset contains ~7,000 subscribers with features including:
 - Service usage features
 - Churn label (Yes/No)
 
-> **Framing:** Column names have been adapted to a health plan context (e.g., `Contract` → `plan_type`, `tenure` → `months_as_subscriber`) to make the business narrative more realistic and relevant to healthtech recruiting contexts.
+> **Framing:** The analysis keeps the original Telco column names (`Contract`, `tenure`, `MonthlyCharges`, …) but interprets them through a health-plan lens — e.g., `Contract` as plan type, `tenure` as months as a subscriber — to make the business narrative relevant to healthtech contexts.
 
 ---
 
@@ -125,11 +126,11 @@ The dataset contains ~7,000 subscribers with features including:
 
 Based on the analysis:
 
-1. **Prioritize onboarding for month-to-month subscribers** — the first 90 days are where most churn occurs. A structured 30/60/90 day check-in cadence can reduce early churn by an estimated 15–20%.
+1. **Prioritize onboarding for month-to-month subscribers** — ~42% of all churn happens in the first 6 months (56% churn in the first 3). A structured 30/60/90-day check-in cadence targets the window where most cancellations originate.
 
-2. **Incentivize annual contract upgrades** — offering a discount or added benefit at the 3-month mark for monthly subscribers targets the highest-risk window.
+2. **Incentivize longer contracts** — two-year contracts churn at 2.8% vs 42.7% for month-to-month. A discount or added benefit at the 3-month mark targets the highest-risk window before it cancels.
 
-3. **Deploy the churn model as a weekly scoring job** — flag subscribers with >60% predicted churn probability for proactive outreach by the CS team.
+3. **Deploy the churn model as a weekly scoring job** — at a >60% probability threshold the model flags ~480 subscribers and catches **71% of churners** (55% of those flagged truly churn) for proactive CS outreach. The threshold is a budget dial: lower it to catch more churners at the cost of more false alarms.
 
 ---
 

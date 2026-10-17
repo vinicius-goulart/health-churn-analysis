@@ -1,7 +1,7 @@
 [project]
 name = "health-churn-analysis"
 version = "0.1.0"
-description = "Add your description here"
+description = "Health plan subscriber churn analysis: EDA, Plotly storytelling, SQL cohorts and a churn classifier."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
