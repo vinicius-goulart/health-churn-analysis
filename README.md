@@ -53,9 +53,14 @@ health-churn-analysis/
 |---|---|
 | **Contract type is the #1 driver** | Month-to-month churns **42.7%** vs **2.8%** for two-year contracts — a ~15× gap. The single highest-leverage retention lever. |
 | **The first 6 months are critical** | ~**42% of all churn** happens within the first 6 months; subscribers in their first 3 months churn at **56%**. Onboarding is decisive. |
-| **Missing protection add-ons flag risk** | Subscribers without `OnlineSecurity` / `TechSupport` / etc. churn at ~**40%** vs ~**15–22%** for those who have them. |
+| **Missing protection add-ons flag risk** | Subscribers without `OnlineSecurity` / `TechSupport` / etc. churn at ~**40%** vs ~**15–23%** for those who have them. |
 | **Highest-risk segment** | Month-to-month + electronic check + fiber optic = **60.4% churn** (1,307 subscribers) — the "less-committed" profile. |
 | **Model ROC-AUC** | **0.833** (Logistic Regression) vs 0.500 baseline, catching **78%** of churners (recall) at the default 0.5 threshold. |
+
+| | |
+|---|---|
+| ![Churn rate by contract type](images/01_churn_by_contract.png) | ![Churn rate by tenure](images/02_churn_by_tenure.png) |
+| ![Churn by contract, payment method and internet service](images/03_risk_segments_sunburst.png) | ![Churn with vs without protection add-ons](images/04_protection_gap.png) |
 
 ---
 
